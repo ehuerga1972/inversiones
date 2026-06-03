@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Inversiones Maestro · Vista</title>
+<style>
+  :root {
+    --bg: #F5EFE0; --bg-soft: #EFE8D7; --line: #D8CFB8; --line-soft: #E8DFC9;
+    --ink: #1F2A24; --ink-soft: #5C6360;
+    --gold: #A8895A; --gold-soft: #E8D8B3;
+    --green: #4A6B47; --green-soft: #C7D6BF;
+    --red: #9B5050; --red-soft: #E6C8C8;
+    --blue: #4D6B83; --blue-soft: #C8D5DD;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px; }
+  .header { padding: 8px 0 20px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  .title { font-family: Georgia, 'Times New Roman', serif; font-size: 28px; font-weight: 400; letter-spacing: -0.5px; line-height: 1.1; }
+  .title em { color: var(--gold); font-style: italic; }
+  .subtitle { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  .kpi-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
+  @media (min-width: 540px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+  .kpi-card { background: white; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+  .kpi-card.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .kpi-card.pos { border-color: var(--green); }
+  .kpi-card.neg { border-color: var(--red); }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); }
+  .kpi-card.primary .kpi-label { color: var(--gold); }
+  .kpi-value { font-family: Georgia, serif; font-size: 26px; line-height: 1.1; margin-top: 6px; font-weight: 400; }
+  .kpi-meta { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  .kpi-card.primary .kpi-meta { color: rgba(255,255,255,0.6); }
+
+  h2 { font-family: Georgia, serif; font-size: 20px; font-weight: 400; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h2 em { color: var(--gold); font-style: italic; }
+
+  .broker-group { background: white; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .broker-group summary { padding: 14px 16px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+  .broker-group summary::-webkit-details-marker { display: none; }
+  .broker-group summary::after { content: '−'; color: var(--gold); font-size: 18px; margin-left: 10px; }
+  .broker-group:not([open]) summary::after { content: '+'; }
+  .broker-name { font-size: 15px; }
+  .broker-total { font-family: Georgia, serif; font-size: 16px; color: var(--ink-soft); }
+  .broker-group table { width: 100%; border-collapse: collapse; }
+  .broker-group tr { border-top: 1px solid var(--line-soft); }
+  .broker-group td { padding: 10px 16px; vertical-align: top; }
+  .ticker { width: 50%; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  table.summary { width: 100%; background: white; border: 1px solid var(--line); border-radius: 8px; border-collapse: collapse; overflow: hidden; }
+  table.summary td { padding: 10px 14px; border-top: 1px solid var(--line-soft); vertical-align: top; }
+  table.summary tr:first-child td { border-top: 0; }
+  .venta-row { background: var(--red-soft); }
+
+  .small { font-size: 12px; }
+  .muted { color: var(--ink-soft); }
+  .pos { color: var(--green); }
+  .neg { color: var(--red); }
+  .nowrap { white-space: nowrap; }
+  .usd-tag { display: inline-block; background: var(--blue-soft); color: var(--blue); font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 600; vertical-align: middle; margin-left: 4px; }
+
+  .footer { text-align: center; color: var(--ink-soft); font-size: 11px; margin: 30px 0 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .footer em { color: var(--gold); }
+  .badge { display: inline-block; background: var(--gold-soft); color: var(--gold); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="title">Inversiones <em>Maestro</em></div>
+    <div class="subtitle">📱 Vista de consulta · 03/06/2026, 05:41 p. m. <span class="badge" style="margin-left:8px;">Read only</span></div>
+  </div>
+
+  
+    <div class="kpi-grid">
+      <div class="kpi-card primary">
+        <div class="kpi-label">Valor total</div>
+        <div class="kpi-value">$147.789.715</div>
+        <div class="kpi-meta">82 posiciones · TC $1405</div>
+      </div>
+      <div class="kpi-card pos">
+        <div class="kpi-label">G/P latente</div>
+        <div class="kpi-value">$40.988.521</div>
+        <div class="kpi-meta">+38.38% sobre costo</div>
+      </div>
+      
+        <div class="kpi-card">
+          <div class="kpi-label">Mes vs May 2026</div>
+          <div class="kpi-value neg">$-809.197</div>
+          <div class="kpi-meta">-0.54% · Aporte $1.014.172</div>
+        </div>
+      
+    </div>
+
+  <h2>Cartera por <em>broker</em></h2>
+  
+      <details class="broker-group" open>
+        <summary>
+          <span class="broker-name">Bull Market</span>
+          <span class="broker-total">$21.532.930</span>
+        </summary>
+        <table>
+          <tbody>
+        <tr>
+          <td class="ticker"><strong>YPFD</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">54</td>
+          <td class="num"><strong>$4.245.750</strong><div class="small pos">+81.30%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>VIST</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">70</td>
+          <td class="num"><strong>$2.576.000</strong><div class="small pos">+98.98%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>PAMP</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">400</td>
+          <td class="num"><strong>$2.032.000</strong><div class="small pos">+46.92%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>BMA</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">150</td>
+          <td class="num"><strong>$2.016.000</strong><div class="small pos">+42.21%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GGAL</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">257</td>
+          <td class="num"><strong>$1.931.355</strong><div class="small pos">+23.27%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>QQQ</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">25</td>
+          <td class="num"><strong>$1.370.000</strong><div class="small pos">+23.68%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>MELI</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">60</td>
+          <td class="num"><strong>$1.259.400</strong><div class="small pos">+16.56%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>LOMA</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">350</td>
+          <td class="num"><strong>$1.254.750</strong><div class="small pos">+37.69%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GOOGL</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">116</td>
+          <td class="num"><strong>$1.132.160</strong><div class="small pos">+25.72%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>CEPU</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">310</td>
+          <td class="num"><strong>$731.290</strong><div class="small pos">+97.39%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TGNO4</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">140</td>
+          <td class="num"><strong>$591.500</strong><div class="small pos">+60.27%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>AMZN</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">205</td>
+          <td class="num"><strong>$571.950</strong><div class="small pos">+22.19%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>CRES</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">304</td>
+          <td class="num"><strong>$538.080</strong><div class="small pos">+82.21%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TGSU2</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">50</td>
+          <td class="num"><strong>$459.750</strong><div class="small pos">+97.40%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>META</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">11</td>
+          <td class="num"><strong>$430.980</strong><div class="small pos">+0.53%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>WMT</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">15</td>
+          <td class="num"><strong>$142.200</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>UNH</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">8</td>
+          <td class="num"><strong>$136.240</strong><div class="small pos">+7.41%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TSM</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">1</td>
+          <td class="num"><strong>$73.400</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>NFLX</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">15</td>
+          <td class="num"><strong>$40.125</strong><div class="small pos">+0.00%</div></td>
+        </tr></tbody>
+        </table>
+      </details>
+      <details class="broker-group" open>
+        <summary>
+          <span class="broker-name">Balanz</span>
+          <span class="broker-total">$58.262.447</span>
+        </summary>
+        <table>
+          <tbody>
+        <tr>
+          <td class="ticker"><strong>YPFD</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">81</td>
+          <td class="num"><strong>$6.346.350</strong><div class="small pos">+85.85%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>MELI</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">300</td>
+          <td class="num"><strong>$6.279.000</strong><div class="small pos">+215.72%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>META</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">155</td>
+          <td class="num"><strong>$6.066.700</strong><div class="small pos">+1898.30%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TSLA</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">110</td>
+          <td class="num"><strong>$4.749.800</strong><div class="small pos">+204.29%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>VIST</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">115</td>
+          <td class="num"><strong>$4.220.500</strong><div class="small pos">+190.98%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>PAMP</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">800</td>
+          <td class="num"><strong>$4.064.000</strong><div class="small pos">+290.91%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>VSCVO</strong> <div class="small muted">ON</div></td>
+          <td class="num small muted">2.000</td>
+          <td class="num"><strong>$3.302.600</strong><div class="small pos">+25.40%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GD35</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">2.402</td>
+          <td class="num"><strong>$2.806.737</strong><div class="small pos">+70.27%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>KO</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">85</td>
+          <td class="num"><strong>$1.998.350</strong><div class="small pos">+223.57%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>LOMA</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">495</td>
+          <td class="num"><strong>$1.778.288</strong><div class="small pos">+32.79%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>AMZN</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">600</td>
+          <td class="num"><strong>$1.672.500</strong><div class="small pos">+525.24%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>QQQ</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">30</td>
+          <td class="num"><strong>$1.646.250</strong><div class="small pos">+25.54%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>YM34O</strong> <div class="small muted">ON</div></td>
+          <td class="num small muted">1.000</td>
+          <td class="num"><strong>$1.597.900</strong><div class="small pos">+41.73%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GD30</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">1.700</td>
+          <td class="num"><strong>$1.589.330</strong><div class="small pos">+54.07%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GOOGL</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">135</td>
+          <td class="num"><strong>$1.315.575</strong><div class="small pos">+116.78%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>WMT</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">135</td>
+          <td class="num"><strong>$1.296.000</strong><div class="small pos">+295.73%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TXAR</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">1.700</td>
+          <td class="num"><strong>$1.177.250</strong><div class="small pos">+505.49%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>ADBE</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">110</td>
+          <td class="num"><strong>$959.750</strong><div class="small pos">+149.38%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>DIA</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">25</td>
+          <td class="num"><strong>$948.500</strong><div class="small pos">+588.35%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>CEPU</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">350</td>
+          <td class="num"><strong>$824.600</strong><div class="small pos">+76.45%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>XLV</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">100</td>
+          <td class="num"><strong>$766.000</strong><div class="small neg">-0.49%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>SPY</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">31</td>
+          <td class="num"><strong>$581.250</strong><div class="small neg">-62.27%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>NVDA</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">43</td>
+          <td class="num"><strong>$569.750</strong><div class="small pos">+19.51%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>AL30</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">500</td>
+          <td class="num"><strong>$458.800</strong><div class="small pos">+8.87%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GGAL</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">50</td>
+          <td class="num"><strong>$374.750</strong><div class="small pos">+62.20%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>LONGPesosA</strong> <div class="small muted">Fondo</div></td>
+          <td class="num small muted">156.931,49</td>
+          <td class="num"><strong>$334.085</strong><div class="small pos">+6.06%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TGNO4</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">59</td>
+          <td class="num"><strong>$248.833</strong><div class="small pos">+59.25%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>LONGPESOSA</strong> <div class="small muted">Fondo</div></td>
+          <td class="num small muted">113.341,18</td>
+          <td class="num"><strong>$227.860</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>ALUA</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">60</td>
+          <td class="num"><strong>$61.140</strong><div class="small pos">+3.98%</div></td>
+        </tr></tbody>
+        </table>
+      </details>
+      <details class="broker-group" open>
+        <summary>
+          <span class="broker-name">Santander</span>
+          <span class="broker-total">$55.134.949</span>
+        </summary>
+        <table>
+          <tbody>
+        <tr>
+          <td class="ticker"><strong>YPFD</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">162</td>
+          <td class="num"><strong>$12.737.250</strong><div class="small pos">+15.74%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>AL30</strong> <span class="usd-tag">USD</span><div class="small muted">Bono</div></td>
+          <td class="num small muted">5.020</td>
+          <td class="num"><strong>$4.513.984</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>LOC5O</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">3.000</td>
+          <td class="num"><strong>$4.476.330</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>HJCJO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">3.000</td>
+          <td class="num"><strong>$4.459.470</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TXAR</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">5.000</td>
+          <td class="num"><strong>$3.472.500</strong><div class="small pos">+4679.77%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TLCPO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">2.000</td>
+          <td class="num"><strong>$3.116.290</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>ARC1O</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">2.000</td>
+          <td class="num"><strong>$3.020.750</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>YFCJO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">2.000</td>
+          <td class="num"><strong>$3.009.510</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>DNC7O</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">2.000</td>
+          <td class="num"><strong>$3.003.890</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>PAMP</strong> <div class="small muted">Acción</div></td>
+          <td class="num small muted">545</td>
+          <td class="num"><strong>$2.768.600</strong><div class="small pos">+3.46%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>S30N6</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">1.654.339</td>
+          <td class="num"><strong>$1.927.305</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>T15E7</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">1.312.248</td>
+          <td class="num"><strong>$1.835.835</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>RC2CO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">1.000</td>
+          <td class="num"><strong>$1.444.340</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>VSCRO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">900</td>
+          <td class="num"><strong>$1.364.395</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TTC9O</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">737</td>
+          <td class="num"><strong>$1.076.904</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>MELI</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">30</td>
+          <td class="num"><strong>$629.700</strong><div class="small pos">+3.79%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>S31G6</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">500.000</td>
+          <td class="num"><strong>$602.500</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>PNDCO</strong> <span class="usd-tag">USD</span><div class="small muted">ON</div></td>
+          <td class="num small muted">1.000</td>
+          <td class="num"><strong>$599.935</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>T30J6</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">300.000</td>
+          <td class="num"><strong>$427.500</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>S30S6</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">300.000</td>
+          <td class="num"><strong>$327.000</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>GD30</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">200</td>
+          <td class="num"><strong>$187.980</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>KO</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">4</td>
+          <td class="num"><strong>$93.800</strong><div class="small pos">+0.00%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>META</strong> <div class="small muted">CEDEAR</div></td>
+          <td class="num small muted">1</td>
+          <td class="num"><strong>$39.180</strong><div class="small pos">+9.14%</div></td>
+        </tr></tbody>
+        </table>
+      </details>
+      <details class="broker-group" open>
+        <summary>
+          <span class="broker-name">Cocos</span>
+          <span class="broker-total">$1.144.112</span>
+        </summary>
+        <table>
+          <tbody>
+        <tr>
+          <td class="ticker"><strong>TX31</strong> <div class="small muted">Bono</div></td>
+          <td class="num small muted">1</td>
+          <td class="num"><strong>$396.538</strong><div class="small pos">+8.62%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>COCORMA</strong> <div class="small muted">Fondo</div></td>
+          <td class="num small muted">1</td>
+          <td class="num"><strong>$376.558</strong><div class="small pos">+3.12%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>COCOAUSD</strong> <div class="small muted">Fondo</div></td>
+          <td class="num small muted">1</td>
+          <td class="num"><strong>$371.016</strong><div class="small pos">+0.95%</div></td>
+        </tr></tbody>
+        </table>
+      </details>
+      <details class="broker-group" open>
+        <summary>
+          <span class="broker-name">Crypto</span>
+          <span class="broker-total">$11.715.277</span>
+        </summary>
+        <table>
+          <tbody>
+        <tr>
+          <td class="ticker"><strong>BTC</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">0,061427</td>
+          <td class="num"><strong>$6.355.268</strong><div class="small neg">-11.32%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>ETH</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">1,124539</td>
+          <td class="num"><strong>$3.170.320</strong><div class="small neg">-30.44%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>XRP</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">610,330631</td>
+          <td class="num"><strong>$1.140.494</strong><div class="small pos">+54.65%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>ADA</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">1.334,777156</td>
+          <td class="num"><strong>$438.835</strong><div class="small neg">-52.24%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>SOL</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">2,904461</td>
+          <td class="num"><strong>$334.297</strong><div class="small neg">-59.15%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>DOGE</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">1.106,905244</td>
+          <td class="num"><strong>$155.209</strong><div class="small neg">-70.65%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>TON</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">34,976152</td>
+          <td class="num"><strong>$92.386</strong><div class="small neg">-64.99%</div></td>
+        </tr>
+        <tr>
+          <td class="ticker"><strong>FET</strong> <span class="usd-tag">USD</span><div class="small muted">Crypto</div></td>
+          <td class="num small muted">72,728642</td>
+          <td class="num"><strong>$28.468</strong><div class="small neg">-87.39%</div></td>
+        </tr></tbody>
+        </table>
+      </details>
+
+  
+    <h2>Histórico <em>mensual</em></h2>
+    <table class="summary">
+      <tbody>
+      <tr>
+        <td>May 2026</td>
+        <td class="num"><strong>$147.584.740</strong></td>
+        <td class="num small neg">—</td>
+      </tr></tbody>
+    </table>
+  
+
+  
+    <h2>Últimas <em>operaciones</em></h2>
+    <table class="summary">
+      <tbody>
+      <tr >
+        <td class="small muted nowrap">2026-06-02</td>
+        <td><strong>TX31</strong><div class="small muted">Cocos</div></td>
+        <td class="num"><strong>$55.995</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-02</td>
+        <td><strong>COCORMA</strong><div class="small muted">Cocos</div></td>
+        <td class="num"><strong>$75.000</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-02</td>
+        <td><strong>COCOAUSD</strong><div class="small muted">Cocos</div></td>
+        <td class="num"><strong>$73.979</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>ALUA</strong><div class="small muted">Balanz</div></td>
+        <td class="num"><strong>$61.740</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>GD30</strong><div class="small muted">Balanz</div></td>
+        <td class="num"><strong>$140.925</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>TGSU2</strong><div class="small muted">Bull Market</div></td>
+        <td class="num"><strong>$37.480</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>NFLX</strong><div class="small muted">Bull Market</div></td>
+        <td class="num"><strong>$40.125</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>WMT</strong><div class="small muted">Bull Market</div></td>
+        <td class="num"><strong>$142.200</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>TSM</strong><div class="small muted">Bull Market</div></td>
+        <td class="num"><strong>$73.400</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>AL30</strong><div class="small muted">Santander</div></td>
+        <td class="num"><strong>$18.456</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>KO</strong><div class="small muted">Santander</div></td>
+        <td class="num"><strong>$93.800</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>GD30</strong><div class="small muted">Santander</div></td>
+        <td class="num"><strong>$187.980</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-06-01</td>
+        <td><strong>LONGPESOSA</strong><div class="small muted">Balanz</div></td>
+        <td class="num"><strong>$13.091</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-05-04</td>
+        <td><strong>LONGPESOSA</strong><div class="small muted">Balanz</div></td>
+        <td class="num"><strong>$14.980</strong></td>
+      </tr>
+      <tr >
+        <td class="small muted nowrap">2026-05-04</td>
+        <td><strong>ALUA</strong><div class="small muted">Balanz</div></td>
+        <td class="num"><strong>$58.800</strong></td>
+      </tr></tbody>
+    </table>
+  
+
+  <div class="footer">
+    Generado por <em>Inversiones Maestro v3.12</em> · 03/06/2026, 05:41 p. m.<br>
+    Para editar tu portfolio, usá la app completa desde la PC.
+  </div>
+</div>
+</body>
+</html>
